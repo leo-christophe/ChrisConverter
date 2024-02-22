@@ -1,6 +1,7 @@
 ﻿using ChrisConverter.Model;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
+using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using ChrisConverter.Services;
 
 namespace ChrisConverter.ViewModel
 {
@@ -19,6 +21,7 @@ namespace ChrisConverter.ViewModel
         public ICommand ConvertCommand { get; private set; }
         public ICommand BrowseInputCommand { get; private set; }
 
+        private Services.FFmpegInstaller FFmpegManager;
         private List<Audioextension> outputFormats;
 
         private string selectedInputFile;
@@ -94,28 +97,34 @@ namespace ChrisConverter.ViewModel
 
         public AudioConverterViewModel()
         {
+            
             ConvertCommand = new RelayCommand(ConvertAudioAsync);
             BrowseInputCommand = new RelayCommand(BrowseInput);
             this.OutputFormats = new List<Audioextension>{new Audioextension("mp3", "Format audio par défaut"),
                                                                               new Audioextension("aac", "format audio de apple") };
+            FFmpegManager = new FFmpegInstaller();
+            FFmpegManager.InstallFFmpeg();
         }
 
+        /// <summary>
+        ///  Méthode asynchrone de conversion de fichier.
+        /// </summary>
         private async void ConvertAudioAsync()
         {
             try
             {
                 IsConverting = true;
-                ConversionMessage = "Conversion in progress...";
+                string outputFormat = ".mp3"; // Output format, you can change it based on the selected output format
 
-                // Replace with your actual conversion logic using libraries like NAudio or FFmpeg
-                // This is just a placeholder
-                await Task.Delay(2000); // Simulate conversion time
+                string outputFilePath = $"{SelectedInputFile.Substring(0, SelectedInputFile.LastIndexOf('.'))}{outputFormat}";
 
-                ConversionMessage = "Conversion successful!";
+                await Task.Run(() => Services.FFmpeg.FFmpegFunctions.RunFFmpeg($"-i \"{SelectedInputFile}\" \"{outputFilePath}\""));
+
+                // Update UI or show message for successful conversion
             }
             catch (Exception ex)
             {
-                ConversionMessage = $"Error: {ex.Message}";
+                // Handle error
             }
             finally
             {
@@ -123,12 +132,16 @@ namespace ChrisConverter.ViewModel
             }
         }
 
+        /// <summary>
+        ///  Méthode permettant de parcourir les fichiers pour en choisir un. Les fichiers valides sont d'extensions .mp3, .aac, .ogg. 
+        /// </summary>
         public void BrowseInput()
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Audio files (*.mp3;*.aac)|*.mp3;*.aac|All files (*.*)|*.*";
+            openFileDialog.Filter = "Audio files (*.mp3;*.aac;*.ogg)|*.mp3;*.aac;*.ogg|All files (*.*)|*.*";
             openFileDialog.FilterIndex = 1;
             openFileDialog.Multiselect = false;
+            // openFileDialog.Multiselect = true; pour plusieurs fichiers à choisir.
 
             if (openFileDialog.ShowDialog() == true)
             {
@@ -136,6 +149,10 @@ namespace ChrisConverter.ViewModel
             }
         }
 
+        /// <summary>
+        /// Méthode permettant de notifier d'un changement de propriété.
+        /// </summary>
+        /// <param name="propertyName">Nom de la propriété.</param>
         private void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

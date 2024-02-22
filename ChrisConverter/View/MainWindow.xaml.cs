@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ChrisConverter.Services;
 
 namespace ChrisConverter.View
 {
@@ -24,6 +25,7 @@ namespace ChrisConverter.View
     {
         public MainWindow()
         {
+            // Installation de FFmpeg.
             InitializeComponent();
         }
     }
