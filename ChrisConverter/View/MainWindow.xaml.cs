@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ChrisConverter.ViewModel;
+using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,7 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace ChrisConverter
+namespace ChrisConverter.View
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
