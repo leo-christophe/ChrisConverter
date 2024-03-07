@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using ChrisConverter.Services;
+using System.IO;
 
 namespace ChrisConverter.ViewModel
 {
@@ -36,8 +37,8 @@ namespace ChrisConverter.ViewModel
             }
         }
 
-        private string selectedOutputFormat;
-        public string SelectedOutputFormat
+        private Audioextension selectedOutputFormat;
+        public Audioextension SelectedOutputFormat
         {
             get => selectedOutputFormat;
             set
@@ -79,7 +80,7 @@ namespace ChrisConverter.ViewModel
             }
         }
 
-        public bool CanConvert => !string.IsNullOrEmpty(SelectedInputFile) && !string.IsNullOrEmpty(SelectedOutputFormat);
+        public bool CanConvert => !string.IsNullOrEmpty(SelectedInputFile) && !string.IsNullOrEmpty(SelectedOutputFormat.NomExtension);
 
         public List<Audioextension> OutputFormats
         {
@@ -95,15 +96,22 @@ namespace ChrisConverter.ViewModel
             }
         }
 
+        /// <summary>
+        /// Constructeur de la classe AudioConverterViewModel
+        /// </summary>
         public AudioConverterViewModel()
         {
-            
+            // RelayCommands pour faire le binding
             ConvertCommand = new RelayCommand(ConvertAudioAsync);
             BrowseInputCommand = new RelayCommand(BrowseInput);
-            this.OutputFormats = new List<Audioextension>{new Audioextension("mp3", "Format audio par défaut"),
-                                                                              new Audioextension("aac", "format audio de apple") };
+
+            // Liste des formats audios
+            this.OutputFormats = new List<Audioextension>{new Audioextension(".mp3", "Format audio par défaut"),
+                                                          new Audioextension(".aac", "format audio de apple"),
+                                                          new Audioextension(".ogg", "format ogg")};
+            // Gestion de FFmpeg
             FFmpegManager = new FFmpegInstaller();
-            FFmpegManager.InstallFFmpeg();
+            // Vérification de l'installation de FFmpeg: FFmpegManager.InstallFFmpeg();
         }
 
         /// <summary>
@@ -114,17 +122,25 @@ namespace ChrisConverter.ViewModel
             try
             {
                 IsConverting = true;
-                string outputFormat = ".mp3"; // Output format, you can change it based on the selected output format
+                string outputFormat = this.SelectedOutputFormat.NomExtension;
 
-                string outputFilePath = $"{SelectedInputFile.Substring(0, SelectedInputFile.LastIndexOf('.'))}{outputFormat}";
+                string outputFilePath = $"{System.IO.Path.ChangeExtension(this.SelectedInputFile, outputFormat)}";
 
-                await Task.Run(() => Services.FFmpeg.FFmpegFunctions.RunFFmpeg($"-i \"{SelectedInputFile}\" \"{outputFilePath}\""));
-
-                // Update UI or show message for successful conversion
+             
+                await Task.Run(() => Services.FFmpeg.FFmpegFunctions.RunFFmpeg($"-i \"{this.SelectedInputFile}\" \"{outputFilePath}\""));
+                
+                if (File.Exists(outputFilePath))
+                {
+                    var result = MessageBox.Show("La conversion a réussi !", "Réussite", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    var result = MessageBox.Show("La conversion a échouée...", "Echec", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                }
             }
             catch (Exception ex)
             {
-                // Handle error
+                Console.WriteLine(ex);
             }
             finally
             {

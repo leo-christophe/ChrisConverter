@@ -1,31 +1,50 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows;
 
 namespace ChrisConverter.Services.FFmpeg
 {
     class FFmpegFunctions
     {
-
         public static void RunFFmpeg(string arguments)
         {
-            ProcessStartInfo processStartInfo = new ProcessStartInfo
+            try
             {
-                FileName = "ffmpeg.exe", // Assuming ffmpeg.exe is in the PATH or same directory as the application
-                Arguments = arguments,
-                CreateNoWindow = false, // This will prevent the FFmpeg console window from appearing
-                UseShellExecute = false,
-                RedirectStandardError = true
-            };
+                ProcessStartInfo processStartInfo = new ProcessStartInfo
+                {
+                    FileName = @"C:\Users\leoch\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-6.1.1-full_build\bin\ffmpeg.exe",
+                    Arguments = arguments,
+                    CreateNoWindow = false,
+                    UseShellExecute = false,
+                    RedirectStandardError = true
+                };
 
-            using (Process process = new Process { StartInfo = processStartInfo })
+                using (Process process = new Process { StartInfo = processStartInfo })
+                {
+                    process.Start();
+                    string errorOutput = process.StandardError.ReadToEnd();
+                    process.WaitForExit();
+
+                    if (!process.HasExited)
+                    {
+                        process.Kill();
+                    }
+
+                    if (!string.IsNullOrEmpty(errorOutput))
+                    {
+                        Console.WriteLine("Erreur lors de l'exécution de FFmpeg :\n" + errorOutput + "Erreur");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Conversion terminée avec succès.", "Succès", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+            }
+            catch (Exception ex)
             {
-                process.Start();
-                process.WaitForExit();
+                Console.WriteLine("Une erreur s'est produite lors de l'exécution de FFmpeg :\n" + ex.Message);
             }
         }
+
     }
 }

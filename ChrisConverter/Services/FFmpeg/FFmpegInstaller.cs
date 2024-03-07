@@ -1,87 +1,68 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+using SharpCompress.Archives;
+using SharpCompress.Common;
 
 namespace ChrisConverter.Services
 {
     public class FFmpegInstaller
     {
-        private const string FFmpegDownloadUrl = "https://ffmpeg.org/download.html";
-        private const string FFmpegZipFilePath = "ffmpeg.zip";
+        private const string FFmpegDownloadUrl = "https://ffmpeg.org/releases/ffmpeg-6.1.1.tar.xz";
         private const string FFmpegInstallDirectory = @"C:\ffmpeg\";
 
-        /// <summary>
-        /// Méthode static permettant d'installer FFmpeg, servant à convertir des fichiers. Si il est déjà installé, on laisse sinon on l'installe.
-        /// </summary>
         public void InstallFFmpeg()
         {
-           
             if (!IsFFmpegInstalled())
             {
-                MessageBox.Show("En train d'installer le package FFmpeg...");
-                DownloadFFmpeg();
-                ExtractFFmpeg();
+                Console.WriteLine("En train d'installer le package FFmpeg...");
+                DownloadAndExtractFFmpeg();
                 UpdateSystemPath();
             }
             else
             {
-                MessageBox.Show("FFmpeg est déjà installé, bonne utilisation!");
+                Console.WriteLine("FFmpeg est déjà installé, bonne utilisation!");
             }
         }
 
-        private static void DownloadFFmpeg()
+        private void DownloadAndExtractFFmpeg()
         {
             using (var client = new WebClient())
             {
-                client.DownloadFile(FFmpegDownloadUrl, FFmpegZipFilePath);
-            }
-        }
+                Directory.CreateDirectory(FFmpegInstallDirectory);
+                string downloadedFilePath = Path.Combine(FFmpegInstallDirectory, "ffmpeg.tar.xz");
+                string extractedDirectoryPath = Path.Combine(FFmpegInstallDirectory, "ffmpeg");
 
-        public static bool IsFFmpegInstalled()
-        {
-            // Check if FFmpeg executable exists in a known installation directory
-            string ffmpegDirectory = @"C:\ffmpeg";
-            string ffmpegExecutable = "ffmpeg.exe";
-            string ffmpegFullPath = Path.Combine(ffmpegDirectory, ffmpegExecutable);
+                // Télécharger le fichier tar.xz
+                client.DownloadFile(FFmpegDownloadUrl, downloadedFilePath);
 
-            if (File.Exists(ffmpegFullPath))
-            {
-                return true;
-            }
-
-            // Alternatively, you could check if FFmpeg is available in the system PATH
-            // This allows for FFmpeg to be installed in any directory included in the PATH environment variable
-            string pathVariable = Environment.GetEnvironmentVariable("PATH");
-            if (!string.IsNullOrEmpty(pathVariable))
-            {
-                string[] paths = pathVariable.Split(';');
-                foreach (string path in paths)
+                // Extraire le contenu du fichier tar.xz
+                using (var archive = ArchiveFactory.Open(downloadedFilePath))
                 {
-                    string ffmpegPathInPath = Path.Combine(path, ffmpegExecutable);
-                    if (File.Exists(ffmpegPathInPath))
+                    foreach (var entry in archive.Entries)
                     {
-                        return true;
+                        if (!entry.IsDirectory)
+                        {
+                            entry.WriteToDirectory(extractedDirectoryPath, new ExtractionOptions()
+                            {
+                                ExtractFullPath = true,
+                                Overwrite = true
+                            });
+                        }
                     }
                 }
+
+                // Supprimer le fichier téléchargé
+                File.Delete(downloadedFilePath);
             }
-
-            // FFmpeg is not found
-            return false;
         }
 
-        private static void ExtractFFmpeg()
+        public bool IsFFmpegInstalled()
         {
-            ZipFile.ExtractToDirectory(FFmpegZipFilePath, FFmpegInstallDirectory);
-            File.Delete(FFmpegZipFilePath);
+            return Directory.Exists(FFmpegInstallDirectory);
         }
 
-        private static void UpdateSystemPath()
+        private void UpdateSystemPath()
         {
             string pathVariable = Environment.GetEnvironmentVariable("PATH") ?? "";
             if (!pathVariable.Contains(FFmpegInstallDirectory))
