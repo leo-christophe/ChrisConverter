@@ -22,7 +22,7 @@ namespace ChrisConverter.ViewModel
         public ICommand ConvertCommand { get; private set; }
         public ICommand BrowseInputCommand { get; private set; }
 
-        private Services.FFmpegInstaller FFmpegManager;
+        // private Services.FFmpegInstaller FFmpegManager;
         private List<Audioextension> outputFormats;
 
         private string selectedInputFile;
@@ -110,7 +110,7 @@ namespace ChrisConverter.ViewModel
                                                           new Audioextension(".aac", "format audio de apple"),
                                                           new Audioextension(".ogg", "format ogg")};
             // Gestion de FFmpeg
-            FFmpegManager = new FFmpegInstaller();
+            // FFmpegManager = new FFmpegInstaller();
             // Vérification de l'installation de FFmpeg: FFmpegManager.InstallFFmpeg();
         }
 
