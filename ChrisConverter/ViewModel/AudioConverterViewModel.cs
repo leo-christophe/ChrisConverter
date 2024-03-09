@@ -12,6 +12,7 @@ using System.Windows;
 using System.Windows.Input;
 using ChrisConverter.Services;
 using System.IO;
+using System.Security.Policy;
 
 namespace ChrisConverter.ViewModel
 {
@@ -32,7 +33,9 @@ namespace ChrisConverter.ViewModel
             set
             {
                 selectedInputFile = value;
+                // Notification de propriété pour le fichier sélectionné
                 OnPropertyChanged("SelectedInputFile");
+                // Notification de propriété pour la variable "Peut Convertir"
                 OnPropertyChanged("CanConvert");
             }
         }
@@ -108,7 +111,12 @@ namespace ChrisConverter.ViewModel
             // Liste des formats audios
             this.OutputFormats = new List<Audioextension>{new Audioextension(".mp3", "Format audio par défaut"),
                                                           new Audioextension(".aac", "format audio de apple"),
-                                                          new Audioextension(".ogg", "format ogg")};
+                                                          new Audioextension(".ogg", "format ogg"),
+                                                          new Audioextension(".wav", "format video"),
+                                                          new Audioextension(".flac", "format video"),
+                                                          new Audioextension(".avi", ""),
+                                                          new Audioextension(".aiff", "Apple format, better metadata."),
+                                                          new Audioextension(".ac3", "Used in film and video production.")};
             // Gestion de FFmpeg
             // FFmpegManager = new FFmpegInstaller();
             // Vérification de l'installation de FFmpeg: FFmpegManager.InstallFFmpeg();
@@ -154,7 +162,21 @@ namespace ChrisConverter.ViewModel
         public void BrowseInput()
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Audio files (*.mp3;*.aac;*.ogg)|*.mp3;*.aac;*.ogg|All files (*.*)|*.*";
+            string filter = "";
+
+
+            foreach(Audioextension format in OutputFormats)
+            {
+                filter += "*" + format.NomExtension;
+                // on ajoute un point virgule entre chaque si jamais pour séparer (.mp3;.ogg;.aac)
+                if (! (this.OutputFormats.IndexOf(format) == this.OutputFormats.Count() - 1))
+                {
+                    filter += ";";
+                }
+            }
+            openFileDialog.Filter = "Audio files (" + filter + ")|" + filter;
+
+
             openFileDialog.FilterIndex = 1;
             openFileDialog.Multiselect = false;
             // openFileDialog.Multiselect = true; pour plusieurs fichiers à choisir.
