@@ -8,16 +8,20 @@ namespace ChrisConverter.Model
 {
     class Audioextension
     {
-        private string? nomExtension;
+        private string nomExtension;
         private string? descriptionExtension;
 
-        public Audioextension(string? extension, string? description)
+        public Audioextension(string extension, string? description)
         {
+            if (extension is null)
+            {
+                throw new ArgumentException("Le nom de l'extension ne peut pas être null!");
+            }
             this.NomExtension = extension;
             this.DescriptionExtension = description;
         }
 
-        public string? NomExtension
+        public string NomExtension
         {
             get
             {

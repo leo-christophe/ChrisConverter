@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 
 namespace ChrisConverter.Services.FFmpeg
 {
     class FFmpegFunctions
     {
-        public static void RunFFmpeg(string arguments)
+        public static async Task RunFFmpegAsync(string arguments)
         {
             try
             {
@@ -22,8 +25,13 @@ namespace ChrisConverter.Services.FFmpeg
                 using (Process process = new Process { StartInfo = processStartInfo })
                 {
                     process.Start();
-                    string errorOutput = process.StandardError.ReadToEnd();
-                    process.WaitForExit();
+
+                    Task<string> errorOutputTask = process.StandardError.ReadToEndAsync();
+                    Task processTask = process.WaitForExitAsync();
+
+                    await Task.WhenAll(errorOutputTask, processTask);
+
+                    string errorOutput = await errorOutputTask;
 
                     if (!process.HasExited)
                     {
@@ -33,10 +41,11 @@ namespace ChrisConverter.Services.FFmpeg
                     if (!string.IsNullOrEmpty(errorOutput))
                     {
                         Console.WriteLine("Erreur lors de l'exécution de FFmpeg :\n" + errorOutput + "Erreur");
+
                     }
                     else
                     {
-                        MessageBox.Show("Conversion terminée avec succès.", "Succès", MessageBoxButton.OK, MessageBoxImage.Information);
+                        System.Windows.MessageBox.Show("Conversion terminée avec succès.", "Succès", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                 }
             }

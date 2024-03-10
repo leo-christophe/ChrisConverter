@@ -6,25 +6,28 @@
         xmlns:local="clr-namespace:ChrisConverter"
         xmlns:ViewModel="clr-namespace:ChrisConverter.ViewModel" x:Class="ChrisConverter.View.MainWindow"
         mc:Ignorable="d"
-        Title="Chris Converter" Height="1080" Width="1917" WindowStartupLocation="CenterScreen" WindowState="Maximized" Cursor="ArrowCD">
+        Title="Chris Converter" Height="438" Width="999" WindowStartupLocation="CenterScreen" Cursor="ArrowCD" ResizeMode="NoResize">
     <Window.DataContext>
         <ViewModel:AudioConverterViewModel/>
     </Window.DataContext>
-    
-    <Grid Background="#FF010108" HorizontalAlignment="Center" VerticalAlignment="Center" Height="1075" Width="1950">
+
+    <Grid Background="#FF010108" HorizontalAlignment="Center" VerticalAlignment="Center" Height="439" Width="999">
+        <Rectangle HorizontalAlignment="Center" Height="371" Stroke="White"   VerticalAlignment="Center" Width="841"/>
         <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" Height="55" Width="366" FontSize="48" FontWeight="Bold" FontFamily="Century Gothic" Background="{x:Null}" Foreground="#FFA4B3B1" Text="Chris Converter" Margin="0,32,0,0"/>
-        <Button Content="{Binding SelectedInputFile}"  Height="49" VerticalAlignment="Top" Margin="543,152,0,0" HorizontalAlignment="Left" Width="339" Command="{Binding BrowseInputCommand}" CommandParameter="{Binding SelectedInputFile}" FontFamily="Century Gothic" FontWeight="Bold" Foreground="#FF4E4E4E"/>
 
-        <ComboBox ItemsSource="{Binding OutputFormats}" DisplayMemberPath="NomExtension" SelectedIndex="0" SelectedValuePath="NomExtension" SelectedItem="{Binding SelectedOutputFormat}" Margin="0,261,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" Width="100" FontSize="16" BorderBrush="Black" Height="42" />
-        <Button Content="Convert" Command="{Binding ConvertCommand}" IsEnabled="{Binding CanConvert}" Margin="882,330,882,701" FontSize="24" FontWeight="Bold" />
+        <Button  Height="48" VerticalAlignment="Top" Margin="0,152,0,0" HorizontalAlignment="Center" Width="339" Command="{Binding BrowseInputCommand}" CommandParameter="{Binding FilesToConvert}" FontFamily="Century Gothic" FontWeight="Bold" Foreground="#FF4E4E4E" Content="{Binding FilesToConvert}"/>
+
+        <ComboBox ItemsSource="{Binding OutputFormats}" DisplayMemberPath="NomExtension" SelectedIndex="0" SelectedValuePath="NomExtension" SelectedItem="{Binding SelectedOutputFormat}" Margin="0,257,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" Width="100" FontSize="16" BorderBrush="Black" Height="42" />
+        <Button Content="Convert" Command="{Binding ConvertCommand}" IsEnabled="{Binding CanConvert}" Margin="440,337,440,62" FontSize="24" FontWeight="Bold" />
+
         <TextBlock Text="{Binding ConversionMessage}" Margin="1571,624,94,393" />
-        <ProgressBar Value="{Binding ConversionProgress}" IsEnabled="{Binding IsConverting}" Margin="1025,147,563,879" />
-        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Height="21" Width="100" FontSize="16" FontWeight="Bold" FontFamily="Century Gothic" Background="{x:Null}" Foreground="#FFA4B3B1" Margin="670,126,0,0" RenderTransformOrigin="0.476,0.542"><Run Language="fr-fr" Text="Selected file"/></TextBlock>
-        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" Height="26" Width="73" FontSize="16" FontWeight="Bold" FontFamily="Century Gothic" Background="{x:Null}" Foreground="#FFA4B3B1" Margin="0,235,0,0"><Run Language="fr-fr" Text="Extension"/></TextBlock>
+
+        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" Height="21" Width="100" FontSize="16" FontWeight="Bold" FontFamily="Century Gothic" Background="{x:Null}" Foreground="#FFA4B3B1" Margin="0,126,0,0" RenderTransformOrigin="0.476,0.542"><Run Language="fr-fr" Text="Selected file"/></TextBlock>
+        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" Height="26" Width="73" FontSize="16" FontWeight="Bold" FontFamily="Century Gothic" Background="{x:Null}" Foreground="#FFA4B3B1" Margin="0,231,0,0"><Run Language="fr-fr" Text="Extension"/></TextBlock>
         <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Height="21" Width="100" FontSize="16" FontWeight="Bold" FontFamily="Century Gothic" Background="{x:Null}" Foreground="#FFA4B3B1" Margin="1139,126,0,0" RenderTransformOrigin="0.476,0.542"><Run Language="fr-fr" Text="Output file"/></TextBlock>
+        <ListBox Margin="103,152,704,92" ItemsSource="{Binding FilesToConvert}"/>
 
 
-        <Rectangle HorizontalAlignment="Left" Height="371" Margin="502,32,0,0" Stroke="White"   VerticalAlignment="Top" Width="925"/>
 
     </Grid>
 </Window>

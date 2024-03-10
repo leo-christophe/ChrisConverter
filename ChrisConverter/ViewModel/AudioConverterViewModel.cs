@@ -24,10 +24,13 @@ namespace ChrisConverter.ViewModel
         public ICommand BrowseInputCommand { get; private set; }
 
         // private Services.FFmpegInstaller FFmpegManager;
-        private List<Audioextension> outputFormats;
+        private List<Audioextension>? outputFormats;
 
-        private string selectedInputFile;
-        public string SelectedInputFile
+
+
+
+        private string? selectedInputFile;
+        public string? SelectedInputFile
         {
             get => selectedInputFile;
             set
@@ -40,8 +43,8 @@ namespace ChrisConverter.ViewModel
             }
         }
 
-        private Audioextension selectedOutputFormat;
-        public Audioextension SelectedOutputFormat
+        private Audioextension? selectedOutputFormat;
+        public Audioextension? SelectedOutputFormat
         {
             get => selectedOutputFormat;
             set
@@ -51,8 +54,8 @@ namespace ChrisConverter.ViewModel
                 OnPropertyChanged("CanConvert");
             }
         }
-        private double conversionProgress;
-        public double ConversionProgress
+        private double? conversionProgress;
+        public double? ConversionProgress
         {
             get => conversionProgress;
             set
@@ -61,8 +64,8 @@ namespace ChrisConverter.ViewModel
                 OnPropertyChanged("ConversionProgress");
             }
         }
-        private string conversionMessage;
-        public string ConversionMessage
+        private string? conversionMessage;
+        public string? ConversionMessage
         {
             get => conversionMessage;
             set
@@ -83,9 +86,19 @@ namespace ChrisConverter.ViewModel
             }
         }
 
-        public bool CanConvert => !string.IsNullOrEmpty(SelectedInputFile) && !string.IsNullOrEmpty(SelectedOutputFormat.NomExtension);
+        public bool CanConvert
+        {
+            get
+            {
 
-        public List<Audioextension> OutputFormats
+                return FilesToConvert != null && FilesToConvert.Any() &&
+                       SelectedOutputFormat != null && !string.IsNullOrEmpty(SelectedOutputFormat.NomExtension);
+            }
+        }
+
+
+
+        public List<Audioextension>? OutputFormats
         {
             get
             {
@@ -96,6 +109,23 @@ namespace ChrisConverter.ViewModel
             {
                 this.outputFormats = value;
                 OnPropertyChanged("OutputFormats");
+                OnPropertyChanged("CanConvert");
+            }
+        }
+
+        private List<AudioFile>? filesToConvert;
+        public List<AudioFile>? FilesToConvert
+        {
+            get
+            {
+                return this.filesToConvert;
+            }
+
+            set
+            {
+                this.filesToConvert = value;
+                OnPropertyChanged("FilesToConvert");
+                OnPropertyChanged("CanConvert");
             }
         }
 
@@ -105,7 +135,7 @@ namespace ChrisConverter.ViewModel
         public AudioConverterViewModel()
         {
             // RelayCommands pour faire le binding
-            ConvertCommand = new RelayCommand(ConvertAudioAsync);
+            ConvertCommand = new AsyncRelayCommand(ConvertAudioAsync);
             BrowseInputCommand = new RelayCommand(BrowseInput);
 
             // Liste des formats audios
@@ -117,38 +147,47 @@ namespace ChrisConverter.ViewModel
                                                           new Audioextension(".avi", ""),
                                                           new Audioextension(".aiff", "Apple format, better metadata."),
                                                           new Audioextension(".ac3", "Used in film and video production.")};
+
+            FilesToConvert = new List<AudioFile>();
             // Gestion de FFmpeg
             // FFmpegManager = new FFmpegInstaller();
             // Vérification de l'installation de FFmpeg: FFmpegManager.InstallFFmpeg();
         }
 
-        /// <summary>
-        ///  Méthode asynchrone de conversion de fichier.
-        /// </summary>
-        private async void ConvertAudioAsync()
+        public async Task ConvertAudioAsync()
         {
             try
             {
+                
                 IsConverting = true;
                 string outputFormat = this.SelectedOutputFormat.NomExtension;
 
-                string outputFilePath = $"{System.IO.Path.ChangeExtension(this.SelectedInputFile, outputFormat)}";
-
-             
-                await Task.Run(() => Services.FFmpeg.FFmpegFunctions.RunFFmpeg($"-i \"{this.SelectedInputFile}\" \"{outputFilePath}\""));
-                
-                if (File.Exists(outputFilePath))
+                if (FilesToConvert != null)  // Add null check here
                 {
-                    var result = MessageBox.Show("La conversion a réussi !", "Réussite", MessageBoxButton.OK, MessageBoxImage.Information);
+                    foreach (var fileToConvert in FilesToConvert)
+                    {
+                        string inputFilePath = fileToConvert.FileName;
+                        string outputFilePath = $"{System.IO.Path.ChangeExtension(inputFilePath, outputFormat)}";
+                        
+                        await Services.FFmpeg.FFmpegFunctions.RunFFmpegAsync($"-i \"{inputFilePath}\" \"{outputFilePath}\"");
+
+                        if (!File.Exists(outputFilePath))
+                        {
+                            MessageBox.Show("La conversion a échouée...", "Echec", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                        }
+                    }
                 }
                 else
                 {
-                    var result = MessageBox.Show("La conversion a échouée...", "Echec", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    MessageBox.Show("Aucun fichier à convertir n'a été sélectionné.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+
+                MessageBox.Show("La conversion a réussi !", "Réussite", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                MessageBox.Show("Une erreur s'est produite lors de la conversion.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
@@ -156,15 +195,19 @@ namespace ChrisConverter.ViewModel
             }
         }
 
+
+
+
+
         /// <summary>
         ///  Méthode permettant de parcourir les fichiers pour en choisir un. Les fichiers valides sont d'extensions .mp3, .aac, .ogg. 
         /// </summary>
         public void BrowseInput()
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
+
+            // Ajout des filtres selon les formats possibles
             string filter = "";
-
-
             foreach(Audioextension format in OutputFormats)
             {
                 filter += "*" + format.NomExtension;
@@ -178,13 +221,16 @@ namespace ChrisConverter.ViewModel
 
 
             openFileDialog.FilterIndex = 1;
-            openFileDialog.Multiselect = false;
+            openFileDialog.Multiselect = true;
             // openFileDialog.Multiselect = true; pour plusieurs fichiers à choisir.
 
             if (openFileDialog.ShowDialog() == true)
             {
-                SelectedInputFile = openFileDialog.FileName;
+                for (int i = 0; i<openFileDialog.FileNames.Count(); i++) {
+                    this.FilesToConvert.Add(new AudioFile(openFileDialog.FileNames[i]));
+                }
             }
+            
         }
 
         /// <summary>

@@ -87,7 +87,10 @@ namespace ChrisConverter.Model
 
         public override bool Equals(object? obj)
         {
-            return this.FileName== ((AudioFile)obj).FileName && this.FileExtension == ((AudioFile)obj).FileExtension && this.FileLength == ((AudioFile)obj).FileLength && this.FileSize == ((AudioFile)obj).FileSize;
+            if (obj is not null) { 
+                return this.FileName== ((AudioFile)obj).FileName && this.FileExtension == ((AudioFile)obj).FileExtension && this.FileLength == ((AudioFile)obj).FileLength && this.FileSize == ((AudioFile)obj).FileSize;
+            }
+            return false;
         }
 
         public override int GetHashCode()
