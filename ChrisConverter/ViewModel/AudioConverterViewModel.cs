@@ -13,7 +13,7 @@ using System.Windows.Input;
 using ChrisConverter.Services;
 using System.IO;
 using System.Security.Policy;
-using ChrisConverter.DBAccess;
+using ChrisConverter.Repositories;
 
 namespace ChrisConverter.ViewModel
 {
@@ -134,7 +134,7 @@ namespace ChrisConverter.ViewModel
 
 
             // Liste des formats audios
-            this.OutputFormats = extensionsDB.GET_extensions();
+            this.OutputFormats = extensionsDB.GetAll();
 
             // Liste des fichiers à convertir initialisée.
             FilesToConvert = new List<AudioFile>();

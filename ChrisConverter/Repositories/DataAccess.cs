@@ -1,9 +1,9 @@
 ﻿using System;
 using Npgsql;
 
-namespace ChrisConverter.DBAccess
+namespace ChrisConverter.Repositories
 {
-    public class DataAccess
+    public class DBAccess
     {
         // Chaîne de connexion à la base de données
         public string connectionString = "Host=localhost;Port=5432;Username=postgres;Password=postgres;Database=chris_converter";

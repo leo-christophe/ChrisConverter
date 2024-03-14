@@ -17,7 +17,19 @@
 
         <Button  Height="48" VerticalAlignment="Top" Margin="0,152,0,0" HorizontalAlignment="Center" Width="339" Command="{Binding BrowseInputCommand}" CommandParameter="{Binding FilesToConvert}" FontFamily="Century Gothic" FontWeight="Bold" Foreground="#FF4E4E4E" Content="{Binding FilesToConvert}"/>
 
-        <ComboBox ItemsSource="{Binding OutputFormats}" DisplayMemberPath="NomExtension" SelectedIndex="0" SelectedValuePath="NomExtension" SelectedItem="{Binding SelectedOutputFormat}" Margin="0,257,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" Width="100" FontSize="16" BorderBrush="Black" Height="42" />
+        <ComboBox ItemsSource="{Binding OutputFormats}" SelectedIndex="0" SelectedValuePath="NomExtension" SelectedItem="{Binding SelectedOutputFormat}" Margin="0,257,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" Width="100" FontSize="16" BorderBrush="Black" Height="42">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock 
+                        Text="{Binding NomExtension}"
+                        ToolTip="{Binding DescriptionExtension}"      
+                     />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+
+
+
         <Button Content="Convert" Command="{Binding ConvertCommand}" IsEnabled="{Binding CanConvert}" Margin="440,337,440,62" FontSize="24" FontWeight="Bold" />
         
         <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" Height="21" Width="100" FontSize="16" FontWeight="Bold" FontFamily="Century Gothic" Background="{x:Null}" Foreground="#FFA4B3B1" Margin="0,126,0,0" RenderTransformOrigin="0.476,0.542"><Run Language="fr-fr" Text="Selected file"/></TextBlock>

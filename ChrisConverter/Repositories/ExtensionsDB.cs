@@ -1,4 +1,5 @@
-﻿using ChrisConverter.Model;
+﻿using ChrisConverter.Repositories;
+using ChrisConverter.Model;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -7,17 +8,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ChrisConverter.DBAccess
+namespace ChrisConverter.Repositories
 {
-    public class ExtensionsDB
+    /// <summary>
+    /// Classe permettant de contrôler la liaison du code avec la base de données (Database First)
+    /// Implémentation de l'interface ICrud pour plus de flexibilité
+    /// </summary>
+    public class ExtensionsDB: ICrud<Audioextension>
     {
-        private readonly DataAccess _accessDB;
-        public ExtensionsDB(DataAccess accessDB)
+        private readonly DBAccess _accessDB;
+        public ExtensionsDB(DBAccess accessDB)
         {
             _accessDB = accessDB;    
         }
 
-        public List<Audioextension> GET_extensions()
+        /// <summary>
+        /// Récupérer toutes les extensions avec leurs noms et descriptions.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public List<Audioextension> GetAll()
         {
             // Création de la connexion à la base de données
             using (var conn = new NpgsqlConnection(_accessDB.connectionString))
@@ -52,6 +62,26 @@ namespace ChrisConverter.DBAccess
                     throw new Exception("Erreur: " + ex.Message);
                 }
             }
+        }
+
+        public Audioextension GetID(int ID)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Add(Audioextension entityToAdd)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Update(int ID, Audioextension newEntity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Delete(int ID)
+        {
+            throw new NotImplementedException();
         }
     }
 }

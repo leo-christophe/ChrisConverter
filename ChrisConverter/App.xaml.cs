@@ -1,4 +1,4 @@
-﻿using ChrisConverter.DBAccess;
+﻿using ChrisConverter.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -27,7 +27,7 @@ namespace ChrisConverter
 
         private void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<DataAccess>(); // Enregistrement de DataAccess comme service singleton
+            services.AddSingleton<DBAccess>(); // Enregistrement de DataAccess comme service singleton
             services.AddSingleton<ExtensionsDB>(); // Enregistrement de ExtensionsDB comme service singleton
 
         }
