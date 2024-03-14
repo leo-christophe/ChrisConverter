@@ -19,15 +19,11 @@
 
         <ComboBox ItemsSource="{Binding OutputFormats}" DisplayMemberPath="NomExtension" SelectedIndex="0" SelectedValuePath="NomExtension" SelectedItem="{Binding SelectedOutputFormat}" Margin="0,257,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" Width="100" FontSize="16" BorderBrush="Black" Height="42" />
         <Button Content="Convert" Command="{Binding ConvertCommand}" IsEnabled="{Binding CanConvert}" Margin="440,337,440,62" FontSize="24" FontWeight="Bold" />
-
-        <TextBlock Text="{Binding ConversionMessage}" Margin="1571,624,94,393" />
-
+        
         <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" Height="21" Width="100" FontSize="16" FontWeight="Bold" FontFamily="Century Gothic" Background="{x:Null}" Foreground="#FFA4B3B1" Margin="0,126,0,0" RenderTransformOrigin="0.476,0.542"><Run Language="fr-fr" Text="Selected file"/></TextBlock>
         <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" Height="26" Width="73" FontSize="16" FontWeight="Bold" FontFamily="Century Gothic" Background="{x:Null}" Foreground="#FFA4B3B1" Margin="0,231,0,0"><Run Language="fr-fr" Text="Extension"/></TextBlock>
         <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Height="21" Width="100" FontSize="16" FontWeight="Bold" FontFamily="Century Gothic" Background="{x:Null}" Foreground="#FFA4B3B1" Margin="1139,126,0,0" RenderTransformOrigin="0.476,0.542"><Run Language="fr-fr" Text="Output file"/></TextBlock>
-        <ListBox Margin="103,152,704,92" ItemsSource="{Binding FilesToConvert}"/>
-
-
+       
 
     </Grid>
 </Window>

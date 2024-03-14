@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ChrisConverter.Model
 {
-    class Audioextension
+    public class Audioextension
     {
         private string nomExtension;
         private string? descriptionExtension;

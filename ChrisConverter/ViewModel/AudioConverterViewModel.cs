@@ -13,6 +13,7 @@ using System.Windows.Input;
 using ChrisConverter.Services;
 using System.IO;
 using System.Security.Policy;
+using ChrisConverter.DBAccess;
 
 namespace ChrisConverter.ViewModel
 {
@@ -64,16 +65,6 @@ namespace ChrisConverter.ViewModel
                 OnPropertyChanged("ConversionProgress");
             }
         }
-        private string? conversionMessage;
-        public string? ConversionMessage
-        {
-            get => conversionMessage;
-            set
-            {
-                conversionMessage = value;
-                OnPropertyChanged("ConversionMessage");
-            }
-        }
 
         private bool isConverting;
         public bool IsConverting
@@ -90,7 +81,6 @@ namespace ChrisConverter.ViewModel
         {
             get
             {
-
                 return FilesToConvert != null && FilesToConvert.Any() &&
                        SelectedOutputFormat != null && !string.IsNullOrEmpty(SelectedOutputFormat.NomExtension);
             }
@@ -138,17 +128,17 @@ namespace ChrisConverter.ViewModel
             ConvertCommand = new AsyncRelayCommand(ConvertAudioAsync);
             BrowseInputCommand = new RelayCommand(BrowseInput);
 
-            // Liste des formats audios
-            this.OutputFormats = new List<Audioextension>{new Audioextension(".mp3", "Format audio par défaut"),
-                                                          new Audioextension(".aac", "format audio de apple"),
-                                                          new Audioextension(".ogg", "format ogg"),
-                                                          new Audioextension(".wav", "format video"),
-                                                          new Audioextension(".flac", "format video"),
-                                                          new Audioextension(".avi", ""),
-                                                          new Audioextension(".aiff", "Apple format, better metadata."),
-                                                          new Audioextension(".ac3", "Used in film and video production.")};
+            var app = (App)Application.Current;
+            var ServiceProvider = app.ServiceProvider;
+            var extensionsDB = (ExtensionsDB)(ServiceProvider.GetService(typeof(ExtensionsDB)));
 
+
+            // Liste des formats audios
+            this.OutputFormats = extensionsDB.GET_extensions();
+
+            // Liste des fichiers à convertir initialisée.
             FilesToConvert = new List<AudioFile>();
+
             // Gestion de FFmpeg
             // FFmpegManager = new FFmpegInstaller();
             // Vérification de l'installation de FFmpeg: FFmpegManager.InstallFFmpeg();
@@ -162,7 +152,7 @@ namespace ChrisConverter.ViewModel
                 IsConverting = true;
                 string outputFormat = this.SelectedOutputFormat.NomExtension;
 
-                if (FilesToConvert != null)  // Add null check here
+                if (FilesToConvert != null) 
                 {
                     foreach (var fileToConvert in FilesToConvert)
                     {
